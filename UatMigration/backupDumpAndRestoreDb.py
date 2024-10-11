@@ -5,15 +5,15 @@ from datetime import datetime
 # Database connection parameters for UAT and Production
 db_config_uat = {
     'dbname': 'uatsimulab',
-    'user': 'ubuntu',
-    'password': 'uatSimulab24',
+    'user': '',
+    'password': '',
     'host': 'localhost',
     'port': '5432'
 }
 
 # db_config_prod = {
 #     'dbname': 'simulab',  # Name of the production database
-#     'user': 'ubuntu',      # Database user with appropriate permissions
+#     'user': '',      # Database user with appropriate permissions
 #     'password': '',        # Set this to the actual password for the 'ubuntu' user if needed
 #     'host': 'localhost',   # Change to your production server's IP or hostname if necessary
 #     'port': '5432'         # Default PostgreSQL port
