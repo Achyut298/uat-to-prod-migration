@@ -14,9 +14,9 @@ from datetime import datetime
 # }
 
 db_config_prod = {
-    'dbname': 'simulab_prod_local',  # Name of the production database
-    'user': 'simuroottwo',      # Database user with appropriate permissions
-    'password': 'simuroottwo',        # Set this to the actual password for the 'ubuntu' user if needed
+    'dbname': 'simulab',  # Name of the production database
+    'user': 'ubuntu',      # Database user with appropriate permissions
+    'password': 'ubuntu',        # Set this to the actual password for the 'ubuntu' user if needed
     'host': 'localhost',   # Change to your production server's IP or hostname if necessary
     'port': '5432'         # Default PostgreSQL port
 }
@@ -99,7 +99,7 @@ backup_file_path_prod = f'./db_backups/{timestamp}_proddump.dump'
 # backup_database(db_config_uat, backup_file_path_uat)
 
 # # Backup Production database
-# backup_database(db_config_prod, backup_file_path_prod)
+backup_database(db_config_prod, backup_file_path_prod)
 
 
 
@@ -128,7 +128,7 @@ def callToUpdateUrls():
         ]
         
     old_image_url = 'http://ec2-18-214-233-182.compute-1.amazonaws.com:8169'
-    new_image_url = 'http://localhost:8070'
+    new_image_url = 'https://simulab.immersivelabz.com'
 
     prod_conn = create_connection(db_config_prod)
     if prod_conn:
@@ -177,7 +177,7 @@ def handle_nan_values(row, columns):
 def restore_table_from_csv(conn, table_name, csv_file, key):
     # Load data from CSV
     print(f'restoring from table {table_name}')
-    data = pd.read_csv(csv_file,low_memory=False)
+    data = pd.read_csv(csv_file)
     columns = get_table_columns(conn, table_name)  # Get columns and their types dynamically
 
     col_names = [col[0] for col in columns]  # List of column names
@@ -287,16 +287,22 @@ TABLESOBJ = {"key":"id","TABLES":['simulab_school', 'school_department', 'school
 # Backup and Restore directories
 BACKUP_FOLDER = "db_backups"
 
-# # Restore data from CSV to Production
-# restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
+# Restore data from CSV to Production
+restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
 TABLESOBJ = {"key":"id","TABLES":['ir_act_server','ir_act_url','ir_actions','ir_actions_todo','ir_asset','ir_attachment']}
 restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
-# TABLESOBJ = {"key":"course_id","TABLES":['simulab_experiment_rel']}
-# restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
-# TABLESOBJ = {"key":"act_id","TABLES":['ir_act_server_group_rel']}
-# restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
-# TABLESOBJ = {"key":"quiz_id","TABLES":['rel_experiment_quiz_tag']}
-# restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
-# TABLESOBJ = {"key":"exam_id","TABLES":['exam_marks_simulab_experiment_rel']}
-# restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
-callToUpdateUrls()
+TABLESOBJ = {"key":"course_id","TABLES":['simulab_experiment_rel']}
+restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
+TABLESOBJ = {"key":"act_id","TABLES":['ir_act_server_group_rel']}
+restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
+TABLESOBJ = {"key":"quiz_id","TABLES":['rel_experiment_quiz_tag']}
+restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
+TABLESOBJ = {"key":"exam_id","TABLES":['exam_marks_simulab_experiment_rel']}
+restore_from_csv(db_config_prod, TABLESOBJ, BACKUP_FOLDER)
+
+
+
+
+#Note: use below cmds to migrate photos,document
+# rsync -av --partial --progress -e "ssh -i ~/keys/simulab-backend-production-mumbai-m6i.xlarge.pem" /mnt/d/SoftwaresAndApps/AWSDetails/Workspace/DbDumpBackup/UAT/10-08-2024/ ubuntu@65.2.53.19:/home/ubuntu/admin/production_data_storage/filestorenew
+# rsync -av --partial --progress -e "ssh -i ~/keys/immersive-general-purpose-dev-t2-large.pem" ubuntu@18.214.233.182:/home/ubuntu/uat/simulab_admin/app_data/filestore/ /mnt/d/SoftwaresAndApps/AWSDetails/Workspace/DbDumpBackup/UAT/10-08-2024/
